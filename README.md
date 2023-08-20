@@ -1,2 +1,2 @@
 # TicTacToe_Game
-My first big game project. I am making with pygame for both desktop and android. If you want to play on your phone just download the apk file and run on your phone.
+I am making with pygame for both desktop and android. If you want to play on your phone just download the apk file and run on your phone.

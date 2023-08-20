@@ -1,6 +1,6 @@
 import pygame
 import sys, time, random
-from pygame.locals import MOUSEMOTION, MOUSEBUTTONDOWN, QUIT
+from pygame.locals import MOUSEMOTION, MOUSEBUTTONUP, QUIT
 class Game():
     
     def __init__(self):
@@ -10,12 +10,14 @@ class Game():
         height = infoObject.current_h
         self.screen_size = width
         self.center = self.screen_size // 2
+        self.w = self.screen_size // 100
         display = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Tic Tac Toe Game")
         self.main_bg = "azure2"
         display.fill(self.main_bg)
         self.display = display
-        self.font = pygame.font.SysFont("serif", 50)
+        self.font = pygame.font.SysFont("serif", self.screen_size // 10)
+        self.custom_font = pygame.font.SysFont("serif", self.screen_size // 12)
         self.is_over = False
         self.blank_board()
         self.depth = 10
@@ -27,18 +29,16 @@ class Game():
             
     def print_board_lines(self):
         size = self.screen_size
-        thickness = 5
-        pygame.draw.line(self.display, "black", (0, self.center), (size, self.center), thickness) # first row
-        pygame.draw.line(self.display, "black", (0, size + self.center), (size, size + self.center), thickness) # last row
+        pygame.draw.line(self.display, "black", (0, self.center), (size, self.center), self.w) # first row
+        pygame.draw.line(self.display, "black", (0, size + self.center), (size, size + self.center), self.w) # last row
         for i in range(1,3):
-            pygame.draw.line(self.display, "black", (0, (size * i) // 3 + self.center), (size, (size * i) // 3 + self.center), thickness) # Row lines
-            pygame.draw.line(self.display, "black", ((size * i) // 3, self.center), ((size * i) // 3, size + self.center), thickness) # Column lines
+            pygame.draw.line(self.display, "black", (0, (size * i) // 3 + self.center), (size, (size * i) // 3 + self.center), self.w) # Row lines
+            pygame.draw.line(self.display, "black", ((size * i) // 3, self.center), ((size * i) // 3, size + self.center), self.w) # Column lines
             
     def place(self, x, y, symbol: bool):
         self.board[y][x] = symbol
         cell_size = self.screen_size // 3
         offset = cell_size // 10
-        width = 5
         # Coordinates
         sq_pos = [cell_size * x, cell_size * y]
         top_left = (sq_pos[0] + offset, sq_pos[1] + offset + self.center)
@@ -49,11 +49,11 @@ class Game():
         radius = (cell_size - offset) / 2
         
         if symbol: # Place X
-            pygame.draw.line(self.display, "red", top_left, bottom_right, width)
-            pygame.draw.line(self.display, "red", bottom_left, top_right, width)
+            pygame.draw.line(self.display, "red", top_left, bottom_right, self.w)
+            pygame.draw.line(self.display, "red", bottom_left, top_right, self.w)
             
         else: # Place O
-            pygame.draw.circle(self.display, "blue", center, radius, width)
+            pygame.draw.circle(self.display, "blue", center, radius, self.w)
         
     def draw_selecting_text(self):
         text = self.font.render("Select your symbol", True, "black")
@@ -72,24 +72,23 @@ class Game():
         
         box = pygame.Rect(left, top, width, radius*2) # Only for alignment / invisible
         # Drawing O
-        pygame.draw.circle(self.display, "blue", (box.x + radius, box.y + radius), radius, 5)
+        pygame.draw.circle(self.display, "blue", (box.x + radius, box.y + radius), radius, self.w)
         # Drawing X
         bottom_right = (box.bottomright[0] - offset // 2, box.bottomright[1] - offset // 2)
         top_left = (box.bottomright[0] + offset // 2 - radius*2, box.bottomright[1] + offset // 2 - radius*2)
         bottom_left = (box.bottomright[0] + offset // 2 - radius*2, box.bottomright[1] - offset // 2)
         top_right = (box.bottomright[0] - offset // 2, box.bottomright[1] + offset // 2 - radius*2)
-        pygame.draw.line(self.display, "red", bottom_right, top_left, 5)
-        pygame.draw.line(self.display, "red", bottom_left, top_right, 5)
+        pygame.draw.line(self.display, "red", bottom_right, top_left, self.w)
+        pygame.draw.line(self.display, "red", bottom_left, top_right, self.w)
         
         button_o = pygame.Rect(left - offset, top - offset, 2*(radius+offset), 2*(radius+offset)) # Button for O
         button_x = pygame.Rect(left + width - 2*radius - offset, top - offset, 2*(radius+offset), 2*(radius+offset)) # Button for X
-        pygame.draw.rect(self.display, "black", button_o, 4, 20)
-        pygame.draw.rect(self.display, "black", button_x, 4, 20)
+        pygame.draw.rect(self.display, "black", button_o, self.w, 20)
+        pygame.draw.rect(self.display, "black", button_x, self.w, 20)
     
     def AI_level(self):
         global select_button
-        custom_font = pygame.font.SysFont("serif", 46)
-        text = custom_font.render("AI Level", True, "black")
+        text = self.custom_font.render("AI Level", True, "black")
         screen = self.screen_size
         offset = screen // 30
         text_rect = text.get_rect(center = (screen // 2, screen * 1.2 + text.get_height() ))
@@ -97,7 +96,7 @@ class Game():
         left =  text_rect.left - offset
         top = text_rect.top - offset
         select_button = pygame.Rect(left, top, text.get_width() + 2 * offset, text.get_height() + 2 * offset)
-        pygame.draw.rect(self.display, "black", select_button, 4, 20)
+        pygame.draw.rect(self.display, "black", select_button, self.w, 20)
         
     def draw_selection_buttons(self, close_button_bg = "red1"):
         global selecting, easy_button, normal_button, imp_button, close_button
@@ -108,9 +107,9 @@ class Game():
         exit_pos = screen - 2*offset - close_button_size
         close_button = pygame.Rect(exit_pos - offset, offset + self.center, 2*offset + close_button_size, 2*offset + close_button_size)
         pygame.draw.rect(self.display, close_button_bg, close_button, 0, 100)
-        pygame.draw.line(self.display, "black", (exit_pos, close_button.top + offset + close_button_size), (screen - 2*offset, close_button.top + offset), 4)
-        pygame.draw.line(self.display, "black", (exit_pos, close_button.top + offset), (exit_pos + close_button_size, close_button.top + offset + close_button_size), 4)
-        pygame.draw.rect(self.display, "black", close_button, 4, 100)
+        pygame.draw.line(self.display, "black", (exit_pos, close_button.top + offset + close_button_size), (screen - 2*offset, close_button.top + offset), self.w)
+        pygame.draw.line(self.display, "black", (exit_pos, close_button.top + offset), (exit_pos + close_button_size, close_button.top + offset + close_button_size), self.w)
+        pygame.draw.rect(self.display, "black", close_button, self.w, 100)
         easy = self.font.render("Easy", False, "black")
         normal = self.font.render("Normal", False, "black")
         imp = self.font.render("Impossible", False, "black")
@@ -130,19 +129,19 @@ class Game():
         easy_button = pygame.Rect(left(easy_rect), top(easy_rect) , width(easy), height(easy))
         normal_button = pygame.Rect(left(normal_rect), top(normal_rect), width(normal), height(normal))
         imp_button = pygame.Rect(left(imp_rect), top(imp_rect), width(imp), height(imp))
-        pygame.draw.rect(self.display, self.main_bg, easy_button, 6, 20)
-        pygame.draw.rect(self.display, self.main_bg, normal_button, 6, 20)
-        pygame.draw.rect(self.display, self.main_bg, imp_button, 6, 20)
-        pygame.draw.rect(self.display, "black", easy_button, 4, 20)
-        pygame.draw.rect(self.display, "black", normal_button, 4, 20)
-        pygame.draw.rect(self.display, "black", imp_button, 4, 20)
+        pygame.draw.rect(self.display, self.main_bg, easy_button, self.w + 10, 20)
+        pygame.draw.rect(self.display, self.main_bg, normal_button, self.w + 10, 20)
+        pygame.draw.rect(self.display, self.main_bg, imp_button, self.w + 10, 20)
+        pygame.draw.rect(self.display, "black", easy_button, self.w, 20)
+        pygame.draw.rect(self.display, "black", normal_button, self.w, 20)
+        pygame.draw.rect(self.display, "black", imp_button, self.w, 20)
         match self.depth:
             case 0:
-                pygame.draw.rect(self.display, "darkorchid", easy_button, 6, 20)
+                pygame.draw.rect(self.display, "darkorchid", easy_button, self.w + 10, 20)
             case 1:
-                pygame.draw.rect(self.display, "darkorchid", normal_button, 6, 20)
+                pygame.draw.rect(self.display, "darkorchid", normal_button, self.w + 10, 20)
             case 10:
-                pygame.draw.rect(self.display, "darkorchid", imp_button, 6, 20)
+                pygame.draw.rect(self.display, "darkorchid", imp_button, self.w + 10, 20)
         pygame.display.update()
         
     def play(self):
@@ -219,22 +218,21 @@ class Game():
         cell_size = self.screen_size // 3
         offset = cell_size // 4
         screen = self.screen_size
-        width = 10
         if row != None:
             left = (offset, cell_size // 2 + row * cell_size + self.center)
             right = (screen - offset, cell_size // 2 + row * cell_size + self.center)
-            pygame.draw.line(self.display, color, left, right, width)
+            pygame.draw.line(self.display, color, left, right, self.w + 10)
             
         if col != None:
             top = (cell_size // 2 + col * cell_size, offset + self.center)
             bottom = (cell_size // 2 + col * cell_size, screen-offset + self.center)
-            pygame.draw.line(self.display, color, top, bottom, width)
+            pygame.draw.line(self.display, color, top, bottom, self.w + 10)
             
         if diagonal != None:
             if all([self.board[i][i] == player for i in range(3)]):
-                pygame.draw.line(self.display, color, (offset, offset + self.center), (screen - offset, screen - offset + self.center), width)
+                pygame.draw.line(self.display, color, (offset, offset + self.center), (screen - offset, screen - offset + self.center), self.w + 10)
             else:
-                pygame.draw.line(self.display, color, (offset, screen - offset + self.center), (screen - offset, offset + self.center), width)
+                pygame.draw.line(self.display, color, (offset, screen - offset + self.center), (screen - offset, offset + self.center), self.w + 10)
                 
         pygame.display.update()
             
@@ -244,7 +242,7 @@ class Game():
         restart_rect = restart_text.get_rect(center = (self.center, self.screen_size * 1.1)) # Only for alignment / invisible
         self.display.blit(restart_text, restart_rect)
         res_button = restart_text.get_rect(width = 2*restart_text.get_width(), height = 1.5*restart_text.get_height(), center = restart_rect.center)
-        pygame.draw.rect(self.display, "black", res_button, 5, 20)
+        pygame.draw.rect(self.display, "black", res_button, self.w, 20)
         
     def game_over(self):
         if self.check_winner(self.player)[0]:
@@ -347,7 +345,7 @@ class Game():
                 pygame.draw.rect(self.display, bg_color, filler)
                 self.board[y][x] = "f"
         
-        if event.type == MOUSEBUTTONDOWN and event.button == 1: # Left click
+        if event.type == MOUSEBUTTONUP and event.button == 1: # Left click
             # Reset button
             if self.is_over:
                 if res_button.collidepoint(pos[0], pos[1]):

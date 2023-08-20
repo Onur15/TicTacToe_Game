@@ -6,18 +6,16 @@ class Game():
     def __init__(self):
         pygame.init()
         infoObject = pygame.display.Info()
-        width = infoObject.current_w
-        height = infoObject.current_h
-        self.screen_size = width
-        self.center = self.screen_size // 2
-        self.w = self.screen_size // 100
-        display = pygame.display.set_mode((width, height))
+        self.screen_width = infoObject.current_w
+        self.center = self.screen_width // 2
+        self.w = self.screen_width // 100
+        display = pygame.display.set_mode((self.screen_width, infoObject.current_h))
         pygame.display.set_caption("Tic Tac Toe Game")
         self.main_bg = "azure2"
         display.fill(self.main_bg)
         self.display = display
-        self.font = pygame.font.SysFont("serif", self.screen_size // 10)
-        self.custom_font = pygame.font.SysFont("serif", self.screen_size // 12)
+        self.font = pygame.font.SysFont("serif", self.screen_width // 10)
+        self.custom_font = pygame.font.SysFont("serif", self.screen_width // 12)
         self.is_over = False
         self.blank_board()
         self.depth = 10
@@ -28,16 +26,16 @@ class Game():
             self.board.append( [" "] * 3)
             
     def print_board_lines(self):
-        size = self.screen_size
-        pygame.draw.line(self.display, "black", (0, self.center), (size, self.center), self.w) # first row
-        pygame.draw.line(self.display, "black", (0, size + self.center), (size, size + self.center), self.w) # last row
+        size = self.screen_width
+        pygame.draw.line(self.display, "black", (0, self.center - self.w // 2), (size, self.center - self.w // 2), self.w) # first row
+        pygame.draw.line(self.display, "black", (0, size + self.center + self.w // 2), (size, size + self.center + self.w // 2), self.w) # last row
         for i in range(1,3):
             pygame.draw.line(self.display, "black", (0, (size * i) // 3 + self.center), (size, (size * i) // 3 + self.center), self.w) # Row lines
             pygame.draw.line(self.display, "black", ((size * i) // 3, self.center), ((size * i) // 3, size + self.center), self.w) # Column lines
             
     def place(self, x, y, symbol: bool):
         self.board[y][x] = symbol
-        cell_size = self.screen_size // 3
+        cell_size = self.screen_width // 3
         offset = cell_size // 10
         # Coordinates
         sq_pos = [cell_size * x, cell_size * y]
@@ -57,12 +55,12 @@ class Game():
         
     def draw_selecting_text(self):
         text = self.font.render("Select your symbol", True, "black")
-        text_rect = text.get_rect(center = (self.center, self.screen_size * 0.65) )
+        text_rect = text.get_rect(center = (self.center, self.screen_width * 0.65) )
         self.display.blit(text, text_rect)
         
     def draw_buttons(self):
         global button_o, button_x
-        screen = self.screen_size
+        screen = self.screen_width
         
         radius = screen // 10
         offset = screen // 30
@@ -89,7 +87,7 @@ class Game():
     def AI_level(self):
         global select_button
         text = self.custom_font.render("AI Level", True, "black")
-        screen = self.screen_size
+        screen = self.screen_width
         offset = screen // 30
         text_rect = text.get_rect(center = (screen // 2, screen * 1.2 + text.get_height() ))
         self.display.blit(text, text_rect)
@@ -101,7 +99,7 @@ class Game():
     def draw_selection_buttons(self, close_button_bg = "red1"):
         global selecting, easy_button, normal_button, imp_button, close_button
         selecting = True
-        screen = self.screen_size
+        screen = self.screen_width
         offset = screen // 30
         close_button_size = offset * 2
         exit_pos = screen - 2*offset - close_button_size
@@ -193,17 +191,17 @@ class Game():
                     case "draw":
                         self.display.fill(self.main_bg)
                         text = self.font.render("Draw!", True, "black")
-                        text_rect = text.get_rect(center = (self.center, self.screen_size * 0.8) )
+                        text_rect = text.get_rect(center = (self.center, self.screen_width * 0.8) )
                         self.display.blit(text, text_rect)
                     case "player":
                         self.display.fill(self.main_bg)
                         text = self.font.render("Player wins!", True, "black")
-                        text_rect = text.get_rect(center = (self.center, self.screen_size * 0.8) )
+                        text_rect = text.get_rect(center = (self.center, self.screen_width * 0.8) )
                         self.display.blit(text, text_rect)
                     case "computer":
                         self.display.fill(self.main_bg)
                         text = self.font.render("Computer wins!", True, "black")
-                        text_rect = text.get_rect(center = (self.center, self.screen_size * 0.8) )
+                        text_rect = text.get_rect(center = (self.center, self.screen_width * 0.8) )
                         self.display.blit(text, text_rect)
                 self.draw_restart_button()
                 pygame.display.update()
@@ -215,9 +213,9 @@ class Game():
                         
     def draw_line(self, player, row = None, col = None, diagonal = None):
         color = "red" if player else "blue"
-        cell_size = self.screen_size // 3
+        cell_size = self.screen_width // 3
         offset = cell_size // 4
-        screen = self.screen_size
+        screen = self.screen_width
         if row != None:
             left = (offset, cell_size // 2 + row * cell_size + self.center)
             right = (screen - offset, cell_size // 2 + row * cell_size + self.center)
@@ -239,7 +237,7 @@ class Game():
     def draw_restart_button(self):
         global res_button
         restart_text = self.font.render("Restart", True, "black")
-        restart_rect = restart_text.get_rect(center = (self.center, self.screen_size * 1.1)) # Only for alignment / invisible
+        restart_rect = restart_text.get_rect(center = (self.center, self.screen_width * 1.1)) # Only for alignment / invisible
         self.display.blit(restart_text, restart_rect)
         res_button = restart_text.get_rect(width = 2*restart_text.get_width(), height = 1.5*restart_text.get_height(), center = restart_rect.center)
         pygame.draw.rect(self.display, "black", res_button, self.w, 20)
@@ -262,12 +260,12 @@ class Game():
     
     def handle_events(self,event):
         global run, selecting
-        cell_size = self.screen_size // 3
+        cell_size = self.screen_width // 3
         pos = pygame.mouse.get_pos()
         x = pos[0] // cell_size
         y = (pos[1] - self.center) // cell_size
         offset = 3
-        box_size = cell_size - 8
+        box_size = cell_size - self.w
         margin = lambda x: (cell_size + 2) * x + offset
         bg_color = "gold"
         
